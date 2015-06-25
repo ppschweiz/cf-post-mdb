@@ -68,12 +68,13 @@ function cf_post_mdb_process( $config, $form){
 	foreach($form['fields'] as $field_id=>$field){
 		$data[$field['slug']] = Caldera_Forms::get_field_data($field_id, $form);
 	}
+	$data['apikey'] = $config['apikey'];
 
 	$curl = curl_init();
 
 	curl_setopt($curl, CURLOPT_POST, 1);
 	curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
-	curl_setopt($curl, CURLOPT_URL, "https://registration.piratenpartei.ch/Post.aspx");
+	curl_setopt($curl, CURLOPT_URL, $config['apiurl']);
 	curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
 
 	$result = curl_exec($curl);
