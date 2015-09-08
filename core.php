@@ -64,22 +64,52 @@ function cf_post_mdb_pre_process( $config, $form){
  */
 function cf_post_mdb_process( $config, $form){
 
-	$data = array();
+	$cividata = array();
+	$ldapdata = array();
+
 	foreach($form['fields'] as $field_id=>$field){
-		$data[$field['slug']] = Caldera_Forms::get_field_data($field_id, $form);
+		switch ($field['slug']){
+			case "email":
+			case "username":	
+				$cividata[$field['slug']] = Caldera_Forms::get_field_data($field_id, $form);
+				$ldapdata[$field['slug']] = Caldera_Forms::get_field_data($field_id, $form);
+				break;
+			case "password":
+				$ldapdata[$field['slug']] = Caldera_Forms::get_field_data($field_id, $form);
+				break;
+			default:
+				$cividata[$field['slug']] = Caldera_Forms::get_field_data($field_id, $form);
+				break;
+		}
 	}
-	$data['apikey'] = $config['apikey'];
+
+	$data['civiapikey'] = $config['civiapikey'];
+        $data['ldapapikey'] = $config['ldapapikey'];
 
 	$curl = curl_init();
-
 	curl_setopt($curl, CURLOPT_POST, 1);
-	curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
-	curl_setopt($curl, CURLOPT_URL, $config['apiurl']);
+	curl_setopt($curl, CURLOPT_POSTFIELDS, $cividata);
+	curl_setopt($curl, CURLOPT_URL, $config['civiapiurl']);
 	curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-
 	$result = curl_exec($curl);
-
+	$errno = curl_errno($curl);
 	curl_close($curl);
+
+	if ($errno) {
+		return new WP_Error( 'error', 'Mitgliedsdaten konnten nicht gespeichert werden.');
+	}
+
+	$curl = curl_init();
+	curl_setopt($curl, CURLOPT_POST, 1);
+	curl_setopt($curl, CURLOPT_POSTFIELDS, $ldapdata);
+	curl_setopt($curl, CURLOPT_URL, $config['ldapapiurl']);
+	curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+	$result = curl_exec($curl);
+	curl_close($curl);
+
+	if ($errno) {
+		return new WP_Error( 'error', 'Benutzer konnte nicht angelegt werden.');
+	}
 }
 
 
