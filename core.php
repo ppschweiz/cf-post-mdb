@@ -86,6 +86,7 @@ function cf_post_mdb_process( $config, $form){
 	$data['civiapikey'] = $config['civiapikey'];
         $data['ldapapikey'] = $config['ldapapikey'];
 
+	$cividata = http_build_query($cividata);
 	$curl = curl_init();
 	curl_setopt($curl, CURLOPT_POST, 1);
 	curl_setopt($curl, CURLOPT_POSTFIELDS, $cividata);
@@ -99,6 +100,7 @@ function cf_post_mdb_process( $config, $form){
 		return new WP_Error( 'error', 'Mitgliedsdaten konnten nicht gespeichert werden.');
 	}
 
+	$ldapdata = http_build_query($ldapdata);
 	$curl = curl_init();
 	curl_setopt($curl, CURLOPT_POST, 1);
 	curl_setopt($curl, CURLOPT_POSTFIELDS, $ldapdata);
